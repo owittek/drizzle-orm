@@ -1502,7 +1502,7 @@ WHERE
 							// default: isSerial ? undefined : defaultValue,
 							notNull: columnResponse.is_nullable === 'NO',
 							generated: isGenerated
-								? { as: generationExpression, type: 'stored' }
+								? { as: generationExpression, type: columnResponse.attgenerated === 'v' ? 'virtual' : 'stored' }
 								: undefined,
 							identity: isIdentity
 								? {
@@ -1795,7 +1795,7 @@ WHERE
 								: undefined,
 							primaryKey: primaryKey,
 							notNull: viewResponse.is_nullable === 'NO',
-							generated: isGenerated ? { as: generationExpression, type: 'stored' } : undefined,
+							generated: isGenerated ? { as: generationExpression, type: viewResponse.attgenerated === 'v' ? 'virtual' : 'stored' } : undefined,
 							identity: isIdentity
 								? {
 									type: identityGeneration,
@@ -2062,6 +2062,7 @@ const getColumnsInfoQuery = ({ schema, table, db }: { schema: string; table: str
     c.udt_name AS enum_name,  -- Enum type (if applicable)
     c.is_generated,  -- Is it a generated column?
     c.generation_expression,  -- Generation expression (if generated)
+    a.attgenerated AS attgenerated,  -- 's' = stored, 'v' = virtual
     c.is_identity,  -- Is it an identity column?
     c.identity_generation,  -- Identity generation strategy (ALWAYS or BY DEFAULT)
     c.identity_start,  -- Start value of identity column
